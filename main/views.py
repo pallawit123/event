@@ -344,6 +344,32 @@ def weather_view(request):
     })
 
 
+from django.http import JsonResponse
+
+def weather_api(request):
+    location = request.GET.get('location', '').strip()
+    if not location:
+        return JsonResponse({'success': False, 'error': 'No location provided'})
+
+    api_key = 'c9085be2ba255f1ff15d56c7dfb6c9a9'
+    url = f'https://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=metric'
+
+    try:
+        resp = requests.get(url, timeout=5)
+        data = resp.json()
+        if data.get('cod') != 200:
+            return JsonResponse({'success': False, 'error': 'Weather not found'})
+        weather = {
+            'temperature': data['main']['temp'],
+            'description': data['weather'][0]['description'],
+            'condition': data['weather'][0]['main'],
+            'humidity': data['main']['humidity'],
+            'windSpeed': round(data['wind']['speed'] * 3.6, 2),  # m/s to km/h
+        }
+        return JsonResponse({'success': True, 'weather': weather})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
 # _____________________________________________Weather ends__________________________________________________________
 
 

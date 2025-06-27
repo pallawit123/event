@@ -43,6 +43,7 @@ urlpatterns = [
 
     # weather starts here
      path('weather/', weather_view, name='weather'),
+     path('api/weather/', weather_api, name='weather_api'),
      #weather ends here
 
      # events starts here

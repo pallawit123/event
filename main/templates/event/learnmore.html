@@ -1,321 +1,598 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ event.title }} | Bhaktapur Tourism</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; }
-        .hero-section {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{% if event.image %}{{ event.image.url }}{% else %}https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&auto=format&fit=crop&w=1632&q=80{% endif %}');
-            background-size: cover; background-position: center; height: 400px;
-        }
-        .event-card { transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);}
-        .event-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);}
-        .gallery-image { transition: all 0.3s ease; cursor: pointer;}
-        .gallery-image:hover { transform: scale(1.03);}
-        .back-btn { transition: all 0.3s ease;}
-        .back-btn:hover { transform: translateX(-5px);}
-        .animate-fade-in { animation: fadeIn 0.8s ease-in-out;}
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);}}
-        .map-container { height: 300px; border-radius: 12px; overflow: hidden;}
-    </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="{% url 'index' %}" class="flex items-center">
-                        <img class="h-10 w-auto" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bhaktapur_Municipality_logo.png/1200px-Bhaktapur_Municipality_logo.png" alt="Bhaktapur Tourism Logo">
-                        <span class="ml-2 text-xl font-bold text-gray-800">Bhaktapur Tourism</span>
-                    </a>
-                </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="{% url 'index' %}" class="text-gray-800 hover:text-amber-600 px-3 py-2 text-sm font-medium">Home</a>
-                    <a href="#" class="text-gray-800 hover:text-amber-600 px-3 py-2 text-sm font-medium">Places</a>
-                    <a href="{% url 'events' %}" class="text-amber-600 border-b-2 border-amber-600 px-3 py-2 text-sm font-medium">Events</a>
-                    <a href="#" class="text-gray-800 hover:text-amber-600 px-3 py-2 text-sm font-medium">Culture</a>
-                    <a href="#" class="text-gray-800 hover:text-amber-600 px-3 py-2 text-sm font-medium">Food</a>
-                    <a href="#" class="bg-amber-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-amber-700 transition">Login</a>
-                </div>
-                <div class="md:hidden flex items-center">
-                    <button class="text-gray-800">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %} 
 
-    <!-- Event Details Section -->
-    <div class="animate-fade-in">
-        <!-- Hero Section with Event Title -->
-        <div class="hero-section flex items-center justify-center text-center text-white">
-            <div>
-                <div class="text-sm uppercase tracking-widest mb-2">{{ event.event_type }}</div>
-                <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ event.title }}</h1>
-                <div class="flex justify-center items-center space-x-4">
-                    <div class="flex items-center">
-                        <i class="far fa-calendar-alt mr-2"></i>
-                        <span>
-                            {{ event.start_date|date:"F j, Y" }}{% if event.end_date %} - {{ event.end_date|date:"F j, Y" }}{% endif %}
-                        </span>
-                    </div>
-                    <div class="flex items-center">
-                        <i class="fas fa-map-marker-alt mr-2"></i>
-                        <span>{{ event.location }}</span>
-                    </div>
-                </div>
-            </div>
+{% block title %} 
+
+{{ event.title }} -Bhaktapur Tourism {% endblock %} 
+
+{% block extra_css %}
+
+    {% load static %}
+        <link rel="stylesheet" href="{% static 'css/learnmore_style.css' %}">
+
+{% endblock %} 
+
+{% block content %}
+
+<main class="main-content">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-container">
+      <div class="hero-info">
+        <span class="event-type">{{ event.get_event_type_display }}</span>
+        <h1 class="event-title">{{ event.title }}</h1>
+        <div class="event-meta">
+          <span class="location">
+            <i class="fas fa-map-marker-alt"></i>
+            {{ event.location }}
+          </span>
+          <span class="date-range">
+            <i class="fas fa-calendar-alt"></i>
+            {{ event.start_date|date:"M d, Y" }} - {{ event.end_date|date:"M d, Y" }}
+          </span>
+        </div>
+      </div>
+      <div class="hero-image">
+        {% if event.image %}
+          <img src="{{ event.image.url }}" alt="{{ event.title }}" id="main-image" />
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="content-grid">
+      <!-- Main Info (Left Column) -->
+      <div class="main-info">
+        <!-- About This Event Card -->
+        <div class="info-card">
+          <h2>About This Event</h2>
+          <div class="description-content">
+            {{ event.description|linebreaks }}
+          </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Back Button -->
-            <a href="{% url 'events' %}" class="back-btn inline-flex items-center text-amber-600 mb-6">
-                <i class="fas fa-arrow-left mr-2"></i>
-                Back to Events
+        <!-- Organizer Card -->
+        <div class="info-card organizer-card">
+          <h3>Organizer</h3>
+          <div class="organizer-info">
+            <div class="organizer-avatar">
+              {# If you have organizer image: <img src="{{ event.organizer_image.url }}" alt="{{ event.organizer }}"> #}
+            </div>
+            <div class="organizer-details">
+              <div class="organizer-name">{{ event.organizer }}</div>
+              {# <p>{{ event.organizer_description }}</p> #}
+              {% if event.website %}
+                <div class="organizer-website">
+                  <i class="fas fa-globe"></i>
+                  <a href="{{ event.website }}" target="_blank">{{ event.website }}</a>
+                </div>
+              {% endif %}
+              <div class="organizer-contact">
+                {# <a href="mailto:{{ event.organizer_email }}"><i class="fas fa-envelope"></i></a> #}
+                {# <a href="tel:{{ event.organizer_phone }}"><i class="fas fa-phone"></i></a> #}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Share This Event Card -->
+        <div class="info-card">
+          <h3>Share This Event</h3>
+          <div class="share-buttons">
+            <a class="share-icon facebook" href="javascript:void(0);" onclick="shareOnFacebook()" title="Share on Facebook">
+              <i class="fab fa-facebook-f"></i>
             </a>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Left Column - Event Details -->
-                <div class="lg:col-span-2">
-                    <!-- Event Description -->
-                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">About the Event</h2>
-                        <p class="text-gray-600 mb-4">
-                            {{ event.description }}
-                        </p>
-                    </div>
-
-                    <!-- Event Schedule -->
-                    {% if event.schedule %}
-                    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Event Schedule</h2>
-                        <div class="space-y-4">
-                            {{ event.schedule|safe }}
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Photo Gallery -->
-                    {% if event.gallery_images.all %}
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Photo Gallery</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {% for image in event.gallery_images.all %}
-                            <div class="gallery-image overflow-hidden rounded-lg">
-                                <img src="{{ image.url }}" alt="{{ event.title }}" class="w-full h-40 object-cover hover:opacity-90 transition">
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-
-                <!-- Right Column - Event Info Sidebar -->
-                <div class="space-y-6">
-                    <!-- Quick Info Card -->
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4">Quick Info</h2>
-                        <div class="space-y-4">
-                            <div class="flex items-start">
-                                <div class="text-amber-600 mr-3 mt-1">
-                                    <i class="far fa-calendar-alt"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-gray-700">Date</h3>
-                                    <p class="text-gray-600">
-                                        {{ event.start_date|date:"F j, Y" }}{% if event.end_date %} - {{ event.end_date|date:"F j, Y" }}{% endif %}
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="text-amber-600 mr-3 mt-1">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-gray-700">Location</h3>
-                                    <p class="text-gray-600">{{ event.location }}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="text-amber-600 mr-3 mt-1">
-                                    <i class="fas fa-tag"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-gray-700">Category</h3>
-                                    <p class="text-gray-600">{{ event.event_type }}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="text-amber-600 mr-3 mt-1">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-gray-700">Participants</h3>
-                                    <p class="text-gray-600">{% if event.participants %}{{ event.participants }}{% else %}Open to Public{% endif %}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="text-amber-600 mr-3 mt-1">
-                                    <i class="fas fa-ticket-alt"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-medium text-gray-700">Ticket</h3>
-                                    <p class="text-gray-600">{% if event.ticket_info %}{{ event.ticket_info }}{% else %}Free Entry{% endif %}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Location Map -->
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4">Location</h2>
-                        <div class="map-container">
-                            {% if event.map_embed %}
-                                {{ event.map_embed|safe }}
-                            {% else %}
-                                <iframe src="https://www.google.com/maps?q={{ event.location|urlencode }}&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                            {% endif %}
-                        </div>
-                        <div class="mt-4">
-                            <a href="https://www.google.com/maps/search/?api=1&query={{ event.location|urlencode }}" target="_blank" class="inline-flex items-center text-amber-600">
-                                <i class="fas fa-directions mr-2"></i>
-                                Get Directions
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Organizer Info -->
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4">Organizer</h2>
-                        <div class="flex items-center">
-                            <img src="{% if event.organizer_logo %}{{ event.organizer_logo.url }}{% else %}https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Bhaktapur_Municipality_logo.png/1200px-Bhaktapur_Municipality_logo.png{% endif %}" alt="Organizer" class="w-12 h-12 rounded-full object-cover mr-4">
-                            <div>
-                                <h3 class="font-medium text-gray-800">{% if event.organizer_name %}{{ event.organizer_name }}{% else %}Bhaktapur Municipality{% endif %}</h3>
-                                <p class="text-gray-600 text-sm">{% if event.organizer_department %}{{ event.organizer_department }}{% else %}Cultural Department{% endif %}</p>
-                            </div>
-                        </div>
-                        <div class="mt-4 space-y-2">
-                            <div class="flex items-center text-gray-600">
-                                <i class="fas fa-phone-alt mr-2 text-sm"></i>
-                                <span class="text-sm">{% if event.organizer_phone %}{{ event.organizer_phone }}{% else %}+977 1-6610321{% endif %}</span>
-                            </div>
-                            <div class="flex items-center text-gray-600">
-                                <i class="fas fa-envelope mr-2 text-sm"></i>
-                                <span class="text-sm">{% if event.organizer_email %}{{ event.organizer_email }}{% else %}culture@bhaktapurmun.gov.np{% endif %}</span>
-                            </div>
-                            <div class="flex items-center text-gray-600">
-                                <i class="fas fa-globe mr-2 text-sm"></i>
-                                <span class="text-sm">{% if event.organizer_website %}{{ event.organizer_website }}{% else %}www.bhaktapurmun.gov.np{% endif %}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Share Event -->
-                    <div class="bg-white rounded-xl shadow-md p-6">
-                        <h2 class="text-xl font-bold text-gray-800 mb-4">Share This Event</h2>
-                        <div class="flex space-x-4">
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ event.title }}" target="_blank" class="w-10 h-10 rounded-full bg-blue-400 text-white flex items-center justify-center hover:bg-blue-500 transition">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="#" class="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition">
-                                <i class="fab fa-youtube"></i>
-                            </a>
-                            <a href="#" class="w-10 h-10 rounded-full bg-pink-600 text-white flex items-center justify-center hover:bg-pink-700 transition">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            <a href="https://wa.me/?text={{ event.title }}%20{{ request.build_absolute_uri }}" target="_blank" class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition">
-                                <i class="fab fa-whatsapp"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <a class="share-icon twitter" href="javascript:void(0);" onclick="shareOnTwitter()" title="Share on Twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+            <a class="share-icon whatsapp" href="javascript:void(0);" onclick="shareOnWhatsApp()" title="Share on WhatsApp">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+            <a class="share-icon copy" href="javascript:void(0);" onclick="copyEventLink()" title="Copy Link">
+              <i class="fas fa-link"></i>
+            </a>
+          </div>
         </div>
+
+        <!-- Ticket & Participation Card -->
+        <div class="info-card">
+          <h3>Ticket & Participation</h3>
+          <div class="ticket-info">
+            <div class="ticket-price">
+              {% if event.is_free %}
+                <span class="price free">FREE</span>
+              {% else %}
+                <span class="price">NPR {{ event.ticket_price }}</span>
+              {% endif %}
+            </div>
+            <div class="ticket-details">
+              <p><strong>Entry:</strong> {{ event.entry_requirements }}</p>
+              <p><strong>Max Participants:</strong> {{ event.max_participants }}</p>
+              <p><strong>Available Spots:</strong> {{ event.available_spots }}</p>
+            </div>
+            {% if event.registration_required %}
+              <button class="register-btn" onclick="registerForEvent()">
+                <i class="fas fa-ticket-alt"></i>
+                Register Now
+              </button>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Event Gallery Card -->
+        {% if event.gallery.all %}
+          <div class="info-card">
+            <h2>Event Gallery</h2>
+            <div class="image-gallery">
+              <div class="gallery-main">
+                {% if event.image %}
+                  <img src="{{ event.image.url }}" alt="{{ event.title }}" class="gallery-main-img" />
+                {% endif %}
+              </div>
+              <div class="gallery-thumbnails">
+                {% for image in event.gallery.all %}
+                  <div class="thumbnail" onclick="changeMainImage('{{ image.image.url }}')">
+                    <img src="{{ image.image.url }}" alt="Event Image" />
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Event Schedule Card -->
+        {% if event.schedules.all %}
+          <div class="info-card">
+            <h2>Event Schedule</h2>
+            <div class="timeline">
+              {% for schedule in event.schedules.all %}
+                <div class="timeline-item">
+                  <div class="timeline-time">{{ schedule.time }}</div>
+                  <div class="timeline-content">
+                    <h4>{{ schedule.activity }}</h4>
+                    <p>{{ schedule.description }}</p>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Sidebar (Right Column) -->
+      <div class="sidebar">
+        <!-- Event Information Card -->
+        <div class="info-card">
+          <h3>Event Information</h3>
+          <div class="info-item">
+            <i class="fas fa-calendar-start"></i>
+            <div>
+              <strong>Start Date</strong>
+              <span>{{ event.start_date|date:"F d, Y" }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-calendar-check"></i>
+            <div>
+              <strong>End Date</strong>
+              <span>{{ event.end_date|date:"F d, Y" }}</span>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-tag"></i>
+            <div>
+              <strong>Category</strong>
+              <span>
+                {% for cat in event.categories.all %}
+                  {{ cat.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </span>
+            </div>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <div>
+              <strong>Location</strong>
+              <span>{{ event.location }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weather Card -->
+        <div class="info-card">
+          <h3>Weather Forecast</h3>
+          <div class="weather-widget" id="weather-widget">
+            <div class="weather-loading">
+              <i class="fas fa-spinner fa-spin"></i>
+              Loading weather...
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold mb-4">Bhaktapur Tourism</h3>
-                    <p class="text-gray-400">Discover the ancient city of Bhaktapur, its rich culture, heritage, and vibrant festivals.</p>
-                    <div class="flex space-x-4 mt-4">
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-youtube"></i></a>
-                    </div>
+    <!-- Related Events -->
+    {% if related_events %}
+      <section class="related-events">
+        <h2>Related Events</h2>
+        <div class="events-grid">
+          {% for related_event in related_events %}
+            <div class="event-card info-card">
+              <div class="event-image">
+                {% if related_event.image %}
+                  <img src="{{ related_event.image.url }}" alt="{{ related_event.title }}" />
+                {% endif %}
+                <div class="event-date">
+                  <span class="day">{{ related_event.start_date|date:"d" }}</span>
+                  <span class="month">{{ related_event.start_date|date:"M" }}</span>
                 </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">Home</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">About Bhaktapur</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Places to Visit</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Events & Festivals</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Local Cuisine</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Visitor Information</h4>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white">How to Reach</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Best Time to Visit</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Accommodation</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Travel Tips</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">FAQs</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
-                    <address class="text-gray-400 not-italic">
-                        <p class="mb-2">Bhaktapur Tourism Office</p>
-                        <p class="mb-2">Durbar Square, Bhaktapur</p>
-                        <p class="mb-2">Nepal</p>
-                        <p class="mb-2">Phone: +977 1-6610321</p>
-                        <p class="mb-2">Email: info@bhaktapurtourism.com</p>
-                    </address>
-                </div>
+              </div>
+              <div class="event-content">
+                <h3>{{ related_event.title }}</h3>
+                <p class="event-location">
+                  <i class="fas fa-map-marker-alt"></i>
+                  {{ related_event.location }}
+                </p>
+                <a href="{% url 'learnmore' related_event.id %}" class="learn-more-btn">
+                  Learn More
+                </a>
+              </div>
             </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2023 Bhaktapur Tourism. All rights reserved.</p>
-            </div>
+          {% endfor %}
         </div>
-    </footer>
+      </section>
+    {% endif %}
+  </div>
+</main>
 
-    <script>
-        // Simple animation for gallery images when clicked
-        document.querySelectorAll('.gallery-image').forEach(image => {
-            image.addEventListener('click', function() {
-                this.classList.add('animate-pulse');
-                setTimeout(() => {
-                    this.classList.remove('animate-pulse');
-                }, 300);
-                // In a real implementation, this would open a lightbox/modal
-                console.log('Opening image in lightbox');
-            });
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+  <span id="toast-message"></span>
+</div>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    initializeAnimations();
+
+    if (document.getElementById("weather-widget")) {
+      loadWeatherData();
+    }
+
+    initializeGallery();
+    // addScrollEffects();
+  });
+
+  function initializeAnimations() {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("fade-in");
+        }
+      });
+    }, observerOptions);
+
+    document
+      .querySelectorAll(".main-info section, .info-card, .event-card")
+      .forEach((el) => {
+        observer.observe(el);
+      });
+  }
+
+  function initializeGallery() {
+    const mainImage = document.querySelector(".gallery-main-img");
+    const thumbnails = document.querySelectorAll(".thumbnail");
+
+    thumbnails.forEach((thumbnail) => {
+      thumbnail.addEventListener("click", function () {
+        const newSrc = this.querySelector("img").src;
+        changeMainImage(newSrc);
+        thumbnails.forEach((t) => t.classList.remove("active"));
+        this.classList.add("active");
+      });
+    });
+  }
+
+  function changeMainImage(imageSrc) {
+    const mainImage = document.querySelector(".gallery-main-img");
+    const heroImage = document.getElementById("main-image");
+    mainImage.style.opacity = "0.5";
+    setTimeout(() => {
+      mainImage.src = imageSrc;
+      if (heroImage) {
+        heroImage.src = imageSrc;
+      }
+      mainImage.style.opacity = "1";
+    }, 200);
+  }
+
+  function shareOnFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(
+      document.querySelector(".event-title").textContent
+    );
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${title}`;
+    window.open(shareUrl, "facebook-share", "width=580,height=296");
+  }
+
+  function shareOnTwitter() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(
+      document.querySelector(".event-title").textContent
+    );
+    const hashtags = "BhaktapurTourism,Nepal,Events";
+    const shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}&hashtags=${hashtags}`;
+    window.open(shareUrl, "twitter-share", "width=580,height=296");
+  }
+
+  function shareOnWhatsApp() {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(
+      document.querySelector(".event-title").textContent
+    );
+    const text = `Check out this amazing event: ${title} ${url}`;
+    const shareUrl = `https://wa.me/?text=${text}`;
+    window.open(shareUrl, "_blank");
+  }
+
+  function copyEventLink() {
+    const url = window.location.href;
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          showToast("Event link copied to clipboard!");
+        })
+        .catch(() => {
+          fallbackCopyTextToClipboard(url);
         });
-        // Back to top button functionality
-        window.addEventListener('scroll', function() {
-            const backToTop = document.querySelector('.back-to-top');
-            if (window.pageYOffset > 300) {
-                backToTop.classList.remove('hidden');
-            } else {
-                backToTop.classList.add('hidden');
-            }
+    } else {
+      fallbackCopyTextToClipboard(url);
+    }
+  }
+
+  function fallbackCopyTextToClipboard(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand("copy");
+      showToast("Event link copied to clipboard!");
+    } catch (err) {
+      showToast("Failed to copy link. Please copy manually.");
+    }
+    document.body.removeChild(textArea);
+  }
+
+  function registerForEvent() {
+    const eventId = getEventIdFromUrl();
+    const registerBtn = document.querySelector(".register-btn");
+    const originalText = registerBtn.innerHTML;
+    registerBtn.innerHTML =
+      '<i class="fas fa-spinner fa-spin"></i> Registering...';
+    registerBtn.disabled = true;
+    fetch(`/api/events/${eventId}/register/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({
+        event_id: eventId,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          showToast("Successfully registered for the event!");
+          registerBtn.innerHTML = '<i class="fas fa-check"></i> Registered';
+          registerBtn.style.background =
+            "linear-gradient(135deg, #28a745, #20c997)";
+        } else {
+          throw new Error(data.message || "Registration failed");
+        }
+      })
+      .catch((error) => {
+        showToast("Registration failed. Please try again.");
+        registerBtn.innerHTML = originalText;
+        registerBtn.disabled = false;
+      });
+  }
+
+  // WEATHER FUNCTIONALITY
+  async function loadWeatherData() {
+    const weatherWidget = document.getElementById("weather-widget");
+    const location = "{{ event.location|escapejs }}";
+    console.log("Weather location:", location);
+    try {
+      const response = await fetch(`/api/weather/?location=${encodeURIComponent(location)}`);
+      const data = await response.json();
+      console.log("Weather API response:", data);
+      if (data.success) {
+        displayWeatherData(data.weather);
+      } else {
+        console.error("Weather API returned success: false", data);
+        weatherWidget.innerHTML = `
+          <div class="weather-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            Weather data unavailable (API returned false)
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error("Weather fetch error:", error);
+      weatherWidget.innerHTML = `
+        <div class="weather-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          Weather data unavailable (JS error)
+        </div>
+      `;
+    }
+  }
+
+  function displayWeatherData(weather) {
+    const weatherWidget = document.getElementById("weather-widget");
+    weatherWidget.innerHTML = `
+      <div class="weather-info">
+        <div class="weather-main">
+          <div class="weather-temp">${Math.round(weather.temperature)}°C</div>
+          <div class="weather-desc">${weather.description}</div>
+        </div>
+        <div class="weather-icon">
+          <i class="fas fa-${getWeatherIcon(weather.condition)}"></i>
+        </div>
+      </div>
+      <div class="weather-details">
+        <small>Humidity: ${weather.humidity}% | Wind: ${weather.windSpeed} km/h</small>
+      </div>
+    `;
+  }
+
+  function getWeatherIcon(condition) {
+    // Normalize to lowercase and handle common OWM conditions
+    const iconMap = {
+      clear: "sun",
+      clouds: "cloud",
+      rain: "cloud-showers-heavy",
+      drizzle: "cloud-rain",
+      snow: "snowflake",
+      thunderstorm: "bolt",
+      mist: "smog",
+      haze: "smog",
+      fog: "smog",
+      smoke: "smog",
+      dust: "smog",
+      sand: "smog",
+      ash: "smog",
+      squall: "wind",
+      tornado: "wind",
+    };
+    return iconMap[condition.toLowerCase()] || "cloud";
+  }
+
+  function getEventIdFromUrl() {
+    const pathParts = window.location.pathname.split("/");
+    return pathParts[pathParts.length - 2];
+  }
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+    toastMessage.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
+
+  function addScrollEffects() {
+    let ticking = false;
+    function updateScrollEffects() {
+      const scrolled = window.pageYOffset;
+      const parallax = document.querySelector(".hero-image");
+      if (parallax) {
+        const speed = scrolled * 0.5;
+        parallax.style.transform = `translateY(${speed}px)`;
+      }
+      ticking = false;
+    }
+    function requestTick() {
+      if (!ticking) {
+        requestAnimationFrame(updateScrollEffects);
+        ticking = true;
+      }
+    }
+    window.addEventListener("scroll", requestTick);
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute("href"));
+      if (target) {
+        target.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
         });
-    </script>
-</body>
-</html>
+      }
+    });
+  });
+
+  function lazyLoadImages() {
+    const images = document.querySelectorAll("img[data-src]");
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.classList.remove("lazy");
+          imageObserver.unobserve(img);
+        }
+      });
+    });
+    images.forEach((img) => imageObserver.observe(img));
+  }
+
+  lazyLoadImages();
+
+  function initializeResponsiveNav() {
+    const navToggle = document.querySelector(".nav-toggle");
+    const navMenu = document.querySelector(".nav-menu");
+    if (navToggle && navMenu) {
+      navToggle.addEventListener("click", () => {
+        navMenu.classList.toggle("active");
+      });
+    }
+  }
+
+  function printEventDetails() {
+    window.print();
+  }
+
+  function addPrintButton() {
+    const shareButtons = document.querySelector(".share-buttons");
+    if (shareButtons) {
+      const printBtn = document.createElement("button");
+      printBtn.className = "share-btn copy";
+      printBtn.innerHTML = '<i class="fas fa-print"></i> Print';
+      printBtn.onclick = printEventDetails;
+      shareButtons.appendChild(printBtn);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    initializeResponsiveNav();
+    addPrintButton();
+  });
+</script>
+
+{% endblock %}
+
+
+
